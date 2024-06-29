@@ -9,11 +9,11 @@ interface LoginFormInputs {
 }
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { onApiLoginContext } = useAuth();
   const { handleSubmit, register, formState: { errors } } = useForm<LoginFormInputs>();
 
   const onSubmit = (data: LoginFormInputs) => {
-    login(data.username, data.password);
+    onApiLoginContext(data.username, data.password);
   };
 
   return (

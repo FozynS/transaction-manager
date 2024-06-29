@@ -2,13 +2,13 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
+import { AuthProvider } from './context/AuthContext';
+
 import PrivateRoute from './components/Auth/PrivateRoute';
 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 
-import './App.css'
-import { AuthProvider } from './context/AuthContext';
 
 const queryClient = new QueryClient();
 

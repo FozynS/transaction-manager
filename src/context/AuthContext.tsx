@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../services/api';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => void;
+  token: string | null,
+  onApiLoginContext: (username: string, password: string) => void;
   logout: () => void;
 }
 
@@ -11,24 +13,30 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  const login = (username: string, password: string) => {
-    if (username === 'admin' && password === 'admin') {
+  
+  const onApiLoginContext = async (username: string, password: string) => {
+    try {
+      const response = await login(username, password);
+      const token = response.token;
       setIsAuthenticated(true);
       navigate('/');
-    } else {
-      alert('Invalid credentials');
+      setToken(token);
+    } catch (error) { 
+      console.error('Error:', error);
+      alert('Login failed. Please try again later.');
     }
   };
 
   const logout = () => {
     setIsAuthenticated(false);
+    setToken(null);
     navigate('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, token, onApiLoginContext, logout }}>
       {children}
     </AuthContext.Provider>
   );
