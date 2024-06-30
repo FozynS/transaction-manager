@@ -114,6 +114,17 @@ app.post('/transactions', authenticateToken, (req, res) => {
   );
 });
 
+app.delete('/transactions/:id', authenticateToken, (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM transactions WHERE id = ?', [id], function (err) {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({ deletedID: id });
+  });
+});
+
 app.put('/transactions/:id', authenticateToken, (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -143,7 +154,19 @@ app.post('/transactions/import', authenticateToken, (req, res) => {
 });
 
 app.get('/transactions/export', authenticateToken, (req, res) => {
-  db.all('SELECT * FROM transactions', [], (err, rows) => {
+  const { filterParam } = req.query;
+  let query = 'SELECT * FROM transactions';
+  const conditions = [];
+
+  if (filterParam) {
+    conditions.push(`type = '${filterParam}'`);
+  }
+
+  if (conditions.length) {
+    query += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  db.all(query, [], (err, rows) => {
     if (err) {
       res.status(400).json({ error: err.message });
       return;

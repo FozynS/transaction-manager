@@ -1,11 +1,12 @@
-import { Button, Input } from "@chakra-ui/react";
+import { Input } from "@chakra-ui/react";
 import styled from "styled-components";
+import LogoutButton from "../Logout/LogoutButton";
 
 const Header: React.FC = () => {
   return (
     <StyledHeader>
       <Input borderColor="blue" type="text" placeholder='Search transaction...'/>
-      <Button colorScheme='gray' variant="outline">Logout</Button>
+      <LogoutButton />
     </StyledHeader>
   );
 };

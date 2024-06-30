@@ -27,7 +27,7 @@ export const register = async (username: string, password: string) => {
   }
 };
 
-export const fetchTransactions = async (token: string, page: number, perPage: number) => {
+export const fetchTransactions = async (token: string, page?: number, perPage?: number) => {
   try {
     const response = await axiosInstance.get('/transactions', {
       headers: { 'authorization': token },
@@ -45,7 +45,7 @@ export const fetchTransactions = async (token: string, page: number, perPage: nu
 export const createTransaction = async (transaction: Transaction[], token: string) => {
   try {
     const response = await axiosInstance.post('/transactions', transaction, {
-      headers: { Authorization: token },
+      headers: { 'authorization': token },
     });
     return response.data;
   } catch (error) {
@@ -67,7 +67,7 @@ export const updateTransaction = async (id: number, status: string, token: strin
 export const deleteTransaction = async (id: number, token: string) => {
   try {
     const response = await axiosInstance.delete(`/transactions/${id}`, {
-      headers: { 'uthorization': token },
+      headers: { 'authorization': token },
     });
     return response.data;
   } catch (error) {
@@ -87,10 +87,11 @@ export const importTransactions = async (transactions: Transaction[], token: str
   }
 };
 
-export const exportTransactions = async (token: string) => {
+export const exportTransactions = async (token: string, filters?: string[]) => {
   try {
     const response = await axiosInstance.get(`/transactions/export`, {
-      headers: { Authorization: token },
+      headers: { 'authorization': token },
+      params: filters,
       responseType: 'blob',
     });
     return response.data;

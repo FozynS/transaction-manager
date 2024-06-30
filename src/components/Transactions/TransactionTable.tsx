@@ -5,21 +5,14 @@ import { fetchTransactions } from "../../services/api";
 import { useQuery } from "react-query";
 import { useAuth } from "../../context/AuthContext";
 import Pagination from "./Pagination";
-
-export interface TransactionItem {
-  id: number;
-  status: string;
-  type: string;
-  clientName: string;
-  amount: number;
-}
+import TransactionItem from '../../types/TransactionItem';
+import DeleteTransactionButton from "./DeleteTransactionButton";
 
 const ITEMS_PER_PAGE = 10;
 
 const TransactionTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { token } = useAuth();
-  
   const { data, error, isLoading } = useQuery('transactions', () => {
     if(token) {
       return fetchTransactions(token, currentPage, ITEMS_PER_PAGE);
@@ -66,7 +59,7 @@ const TransactionTable: React.FC = () => {
                 <StyledTd>{transaction.amount}</StyledTd>
                 <StyledActionTd>
                   <Button colorScheme='blue' variant="outline">Edit</Button>
-                  <Button colorScheme='red' variant="outline">Delete</Button>
+                  <DeleteTransactionButton id={transaction.id} token={token ? token : null}/>
                 </StyledActionTd>
               </Tr>
             ))

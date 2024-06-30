@@ -1,10 +1,12 @@
-import { Box, Button, Select } from "@chakra-ui/react";
+import { Box, Select } from "@chakra-ui/react";
 import React from "react";
 import styled from "styled-components";
-import TransactionsChart from "../components/Transactions/TransactionsChart";
-import ImportTransactions from "../components/Transactions/ImportTransactions";
-import TransactionTable from "../components/Transactions/TransactionTable";
+
 import Header from "../components/common/Header";
+import TransactionsChart from "../components/Transactions/TransactionsChart";
+import TransactionTable from "../components/Transactions/TransactionTable";
+import ImportTransactions from "../components/Transactions/ImportTransactions";
+import ExportTransactions from "../components/Transactions/ExportTransactions";
 import Footer from "../components/common/Footer";
 
 const Dashboard: React.FC = () => {
@@ -18,21 +20,25 @@ const Dashboard: React.FC = () => {
         <MainSection>
           
           <FilterAndButtonBox>
+
             <StyledBox>
               <StyledSelect borderColor='blue.500' variant='flushed' name="status" id="" width='150px' placeholder='Status'>
                 <option value="Pending"> - Pending</option>
                 <option value="Completed"> - Completed</option>
                 <option value="Canceled"> - Canceled</option>
               </StyledSelect>
+              
               <StyledSelect borderColor='blue.500' variant='flushed' name="type" id="" width='150px' placeholder='Type'>
                 <option value="Refill"> - Refill</option>
                 <option value="Withdrawal"> - Withdrawal</option>
               </StyledSelect>
             </StyledBox>
+
             <StyledBox>
-              <ImportTransactions/>
-              <Button colorScheme='purple' variant="outline">Export</Button>
+              <ImportTransactions />
+              <ExportTransactions />
             </StyledBox>
+
           </FilterAndButtonBox>
 
           <DashboardContainer>
