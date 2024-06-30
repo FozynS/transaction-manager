@@ -4,13 +4,15 @@ import Papa from 'papaparse';
 import { Button, useToast } from "@chakra-ui/react";
 
 import { Transaction } from "../../types/TransactionType";
-import { importTransactions } from "../../services/api";
+import { useImportTransactions } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
 const ImportTransactions: React.FC = () => {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { token } = useAuth();
+
+  const { mutate } = useImportTransactions();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -26,12 +28,25 @@ const ImportTransactions: React.FC = () => {
         try {
           const data = results.data as Transaction[];
           if (token) {
-            await importTransactions(data, token);
-            toast({
-              title: "Import successful",
-              status: "success",
-              duration: 3000,
-              isClosable: true,
+            mutate({ data, token }, {
+              onSuccess: () => {
+                toast({
+                  title: "Import successful",
+                  status: "success",
+                  duration: 3000,
+                  isClosable: true,
+                });
+              },
+              onError: (error) => {
+                toast({
+                  title: "Import failed",
+                  description: "There was an error importing the transactions.",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                });
+                console.error("Error importing transactions:", error);
+              },
             });
           } else {
             toast({
@@ -50,6 +65,7 @@ const ImportTransactions: React.FC = () => {
             duration: 3000,
             isClosable: true,
           });
+          console.error("Error importing transactions:", error);
         }
       },
       error: () => {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/api';
+import { useLogin } from '../services/api';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -15,21 +15,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const navigate = useNavigate();
-  
+  const { mutate: loginMutation } = useLogin();
+
   const onApiLoginContext = async (username: string, password: string) => {
     try {
-      const response = await login(username, password);
-      const token = response.token;
-      setIsAuthenticated(true);
-      navigate('/');
-      setToken(token);
-    } catch (error) { 
-      console.error('Error:', error);
+      loginMutation({ username, password }, {
+        onSuccess: (data) => {
+          const token = data.token;
+          localStorage.setItem('token', token);
+          setIsAuthenticated(true);
+          navigate('/');
+          setToken(token);
+        },
+        onError: (error) => {
+          console.error('Login error:', error);
+          alert('Login failed. Please try again later.');
+        }
+      });
+    } catch (error) {
+      console.error('Login error:', error);
       alert('Login failed. Please try again later.');
     }
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
     setIsAuthenticated(false);
     setToken(null);
     navigate('/login');

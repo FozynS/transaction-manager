@@ -3,12 +3,14 @@ import styled from "styled-components";
 
 import ImportTransactions from "./ImportTransactions";
 import ExportTransactions from "./ExportTransactions";
+import Filters from "../../types/FiltersType";
 
 interface TransactionFiltersProps {
   onFilterChange: (name: string, value: string) => void;
+  filters: Filters;
 }
 
-const TransactionFilters: React.FC<TransactionFiltersProps> = ({ onFilterChange }) => {
+const TransactionFilters: React.FC<TransactionFiltersProps> = ({ filters, onFilterChange }) => {
 
   return (
     <FilterAndButtonBox>
@@ -37,7 +39,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({ onFilterChange 
       </StyledBox>
       <StyledBox>
         <ImportTransactions />
-        <ExportTransactions />
+        <ExportTransactions filters={filters}/>
       </StyledBox>
     </FilterAndButtonBox>
   );

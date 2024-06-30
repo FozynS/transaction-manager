@@ -127,16 +127,26 @@ app.delete('/transactions/:id', authenticateToken, (req, res) => {
 
 app.put('/transactions/:id', authenticateToken, (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { updatedFields } = req.body;
+
+  if (!updatedFields.amount.includes('$')) {
+    updatedFields.amount = `$${updatedFields.amount}`;
+  }
+
+  const setClause = Object.keys(updatedFields)
+    .map((key) => `${key} = ?`)
+    .join(', ');
+  const values = [...Object.values(updatedFields), id];
+
   db.run(
-    'UPDATE transactions SET status = ? WHERE id = ?',
-    [status, id],
+    `UPDATE transactions SET ${setClause} WHERE id = ?`,
+    values,
     function (err) {
       if (err) {
         res.status(400).json({ error: err.message });
         return;
       }
-      res.json({ updatedID: this.changes });
+      res.json({ updatedID: id });
     }
   );
 });
@@ -154,12 +164,12 @@ app.post('/transactions/import', authenticateToken, (req, res) => {
 });
 
 app.get('/transactions/export', authenticateToken, (req, res) => {
-  const { filterParam } = req.query;
+  const filters = req.query;
   let query = 'SELECT * FROM transactions';
   const conditions = [];
 
-  if (filterParam) {
-    conditions.push(`type = '${filterParam}'`);
+  if (filters && filters.type) {
+    conditions.push(`type = '${filters.type}'`);
   }
 
   if (conditions.length) {

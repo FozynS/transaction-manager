@@ -1,36 +1,36 @@
-import { Button, Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import React from "react";
 import styled from "styled-components";
-import { fetchTransactions } from "../../services/api";
-import { useQuery } from "react-query";
-import { useAuth } from "../../context/AuthContext";
 import Pagination from "./Pagination";
+
 import TransactionItem from '../../types/TransactionItem';
 import DeleteTransactionButton from "./DeleteTransactionButton";
+import Filters from '../../types/FiltersType';
+import EditTransactionModal from "./EditTransactionModal";
 
 interface TransactionTableProps {
-  filters: {
-    status: string;
-    type: string;
-    searchQuery: string;
-  };
+  data: TransactionItem[];
+  token: string;
+  isLoading: boolean;
+  error: string | null | unknown;
+  filters: Filters;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-const TransactionTable: React.FC<TransactionTableProps> = ({ filters }) => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const { token } = useAuth();
-
-  const { data, error, isLoading } = useQuery('transactions', () => {
-    if(token) {
-      return fetchTransactions(token, currentPage, ITEMS_PER_PAGE, filters);
-    }
-  });
-  
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+const TransactionTable: React.FC<TransactionTableProps> = ({ 
+    data,
+    token,
+    isLoading,
+    error,
+    filters,
+    currentPage,
+    totalPages,
+    onPageChange,
+  }) => {
   
   const applyFilters = (transactions: TransactionItem[]): TransactionItem[] => {
     return transactions.filter((transaction) => {
@@ -48,8 +48,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ filters }) => {
   };
   
   const filteredTransactions = applyFilters(data || []);
-  
-  const totalPages = Math.ceil(filteredTransactions?.length / ITEMS_PER_PAGE);
+
   const limitedTransactions = filteredTransactions?.slice(
     (currentPage - 1) * ITEMS_PER_PAGE, 
     currentPage * ITEMS_PER_PAGE
@@ -86,15 +85,15 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ filters }) => {
                 <StyledTd>{transaction.clientName}</StyledTd>
                 <StyledTd>{transaction.amount}</StyledTd>
                 <StyledActionTd>
-                  <Button colorScheme='blue' variant="outline">Edit</Button>
-                  <DeleteTransactionButton id={transaction.id} token={token ? token : null}/>
+                  <EditTransactionModal transaction={transaction} />
+                  <DeleteTransactionButton id={transaction.id} token={token}/>
                 </StyledActionTd>
               </Tr>
             ))
           )}
         </Tbody>
       </Table>
-      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange}/>
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange}/>
     </>
   )
 }

@@ -1,6 +1,10 @@
 import { Box } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+
+import { useFetchTransactions } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import Filters from "../types/FiltersType";
 
 import Header from "../components/common/Header";
 import TransactionsChart from "../components/Transactions/TransactionsChart";
@@ -8,14 +12,35 @@ import TransactionFilters from "../components/Transactions/TransactionsFilters";
 import TransactionTable from "../components/Transactions/TransactionTable";
 import Footer from "../components/common/Footer";
 
-const Dashboard: React.FC = () => {
+const ITEMS_PER_PAGE = 10;
 
-  const [filters, setFilters] = useState({
+const Dashboard: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [filters, setFilters] = useState<Filters>({
     status: "",
     type: "",
     searchQuery: "",
-
+    
   });
+  const { token } = useAuth();
+
+  const { data, error, isLoading, refetch } = useFetchTransactions(
+    token!,
+    currentPage,
+    ITEMS_PER_PAGE,
+    filters
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [currentPage, refetch]);
+  
+
+  const totalPages = Math.ceil((data?.length || 0) / ITEMS_PER_PAGE);
 
   const handleFilterChange = (name: string, value: string) => {
     setFilters((prevFilters) => ({
@@ -37,14 +62,23 @@ const Dashboard: React.FC = () => {
       <Header handleSearchChange={handleSearchChange}/>
 
       <Main>
-        <TransactionsChart />
+        <TransactionsChart data={data}/>
         
         <MainSection>
 
-          <TransactionFilters onFilterChange={handleFilterChange} />
+          <TransactionFilters filters={filters} onFilterChange={handleFilterChange} />
 
           <DashboardContainer>
-            <TransactionTable filters={filters} />
+          <TransactionTable
+              data={data}
+              token={token!}
+              isLoading={isLoading}
+              error={error}
+              filters={filters}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              totalPages={totalPages}
+            />
           </DashboardContainer>
 
         </MainSection>
