@@ -1,56 +1,56 @@
-import { Box, Select } from "@chakra-ui/react";
-import React from "react";
+import { Box } from "@chakra-ui/react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Header from "../components/common/Header";
 import TransactionsChart from "../components/Transactions/TransactionsChart";
+import TransactionFilters from "../components/Transactions/TransactionsFilters";
 import TransactionTable from "../components/Transactions/TransactionTable";
-import ImportTransactions from "../components/Transactions/ImportTransactions";
-import ExportTransactions from "../components/Transactions/ExportTransactions";
 import Footer from "../components/common/Footer";
 
 const Dashboard: React.FC = () => {
 
+  const [filters, setFilters] = useState({
+    status: "",
+    type: "",
+    searchQuery: "",
+
+  });
+
+  const handleFilterChange = (name: string, value: string) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  const handleSearchChange = (value: string) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      searchQuery: value,
+    }));
+  };
+
+
   return (
     <Box>
-      <Header />
+      <Header handleSearchChange={handleSearchChange}/>
+
       <Main>
         <TransactionsChart />
-
+        
         <MainSection>
-          
-          <FilterAndButtonBox>
 
-            <StyledBox>
-              <StyledSelect borderColor='blue.500' variant='flushed' name="status" id="" width='150px' placeholder='Status'>
-                <option value="Pending"> - Pending</option>
-                <option value="Completed"> - Completed</option>
-                <option value="Canceled"> - Canceled</option>
-              </StyledSelect>
-              
-              <StyledSelect borderColor='blue.500' variant='flushed' name="type" id="" width='150px' placeholder='Type'>
-                <option value="Refill"> - Refill</option>
-                <option value="Withdrawal"> - Withdrawal</option>
-              </StyledSelect>
-            </StyledBox>
-
-            <StyledBox>
-              <ImportTransactions />
-              <ExportTransactions />
-            </StyledBox>
-
-          </FilterAndButtonBox>
+          <TransactionFilters onFilterChange={handleFilterChange} />
 
           <DashboardContainer>
-            <TransactionTable/>
+            <TransactionTable filters={filters} />
           </DashboardContainer>
 
         </MainSection>
-
       </Main>
 
       <Footer/>
-
     </Box>
   );
 };
@@ -73,12 +73,6 @@ const MainSection = styled.section`
   width: 70%;
 `;
 
-const FilterAndButtonBox = styled(Box)`
-  display: flex;
-  justify-content: space-between;
-  width: 90%;
-`;
-
 const DashboardContainer = styled(Box)`
   background-color: #fff;
   border: 1px solid #ced4da;
@@ -86,13 +80,4 @@ const DashboardContainer = styled(Box)`
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 20px;
   margin-top: 20px;
-`;
-
-const StyledBox = styled(Box)`
-  display: flex;
-  gap: 15px;
-`
-
-const StyledSelect = styled(Select)`
-  width: ${(props) => props.width || '200px'};
 `;

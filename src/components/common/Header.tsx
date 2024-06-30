@@ -1,11 +1,19 @@
 import { Input } from "@chakra-ui/react";
 import styled from "styled-components";
-import LogoutButton from "../Logout/LogoutButton";
+import LogoutButton from "../Logout/LogoutButtom";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  handleSearchChange: (value: string) => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ handleSearchChange }) => {
   return (
     <StyledHeader>
-      <Input borderColor="blue" type="text" placeholder='Search transaction...'/>
+      <Input 
+      borderColor="blue" 
+      type="text" 
+      placeholder='Search transaction...' 
+      onChange={(e) => handleSearchChange(e.target.value)}/>
       <LogoutButton />
     </StyledHeader>
   );

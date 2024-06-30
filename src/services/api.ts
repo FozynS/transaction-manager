@@ -27,13 +27,21 @@ export const register = async (username: string, password: string) => {
   }
 };
 
-export const fetchTransactions = async (token: string, page?: number, perPage?: number) => {
+export const fetchTransactions = async (
+  token: string, 
+  page?: number, 
+  perPage?: number, 
+  filters?: { status: string; type: string; searchQuery: string }
+) => {
   try {
     const response = await axiosInstance.get('/transactions', {
       headers: { 'authorization': token },
       params: {
         page,
-        perPage
+        perPage,
+        status: filters?.status,
+        type: filters?.type,
+        searchQuery: filters?.searchQuery,
       }
     });
     return response.data.data;

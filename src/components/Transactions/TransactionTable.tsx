@@ -8,24 +8,52 @@ import Pagination from "./Pagination";
 import TransactionItem from '../../types/TransactionItem';
 import DeleteTransactionButton from "./DeleteTransactionButton";
 
+interface TransactionTableProps {
+  filters: {
+    status: string;
+    type: string;
+    searchQuery: string;
+  };
+}
+
 const ITEMS_PER_PAGE = 10;
 
-const TransactionTable: React.FC = () => {
+const TransactionTable: React.FC<TransactionTableProps> = ({ filters }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { token } = useAuth();
+
   const { data, error, isLoading } = useQuery('transactions', () => {
     if(token) {
-      return fetchTransactions(token, currentPage, ITEMS_PER_PAGE);
+      return fetchTransactions(token, currentPage, ITEMS_PER_PAGE, filters);
     }
   });
   
-  const totalPages = Math.ceil(data?.length / ITEMS_PER_PAGE);
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
-  const limitedTransactions = data?.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  
+  const applyFilters = (transactions: TransactionItem[]): TransactionItem[] => {
+    return transactions.filter((transaction) => {
+      if (filters.status && transaction.status !== filters.status) {
+        return false;
+      }
+      if (filters.type && transaction.type !== filters.type) {
+        return false;
+      }
+      if (filters.searchQuery && !transaction.clientName.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
+        return false;
+      }
+      return true;
+    });
+  };
+  
+  const filteredTransactions = applyFilters(data || []);
+  
+  const totalPages = Math.ceil(filteredTransactions?.length / ITEMS_PER_PAGE);
+  const limitedTransactions = filteredTransactions?.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE, 
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <>
