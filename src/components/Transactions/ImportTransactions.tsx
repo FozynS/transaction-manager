@@ -6,12 +6,14 @@ import { Button, useToast } from "@chakra-ui/react";
 import { Transaction } from "../../types/TransactionType";
 import { useImportTransactions } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import { useQueryClient } from "react-query";
 
 const ImportTransactions: React.FC = () => {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { token } = useAuth();
 
+  const queryClient = useQueryClient();
   const { mutate } = useImportTransactions();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +32,7 @@ const ImportTransactions: React.FC = () => {
           if (token) {
             mutate({ data, token }, {
               onSuccess: () => {
+                queryClient.invalidateQueries('transactions');
                 toast({
                   title: "Import successful",
                   status: "success",
